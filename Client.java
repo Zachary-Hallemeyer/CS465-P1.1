@@ -2,6 +2,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 // import java.lang.StringUtils;
 import java.util.Scanner;
+import java.net.Socket;
 
 // TODO: Add summary with Authors
 public class Client {
@@ -27,6 +28,13 @@ public class Client {
 
     System.out.println("Requesting to connect to ip " + ip +
                        " on port " + port);
+
+    // Attempt to connect to server
+    try(Socket socket = new Socket(ip, port)) {
+
+    } catch(Exception e) {
+      System.out.println("Something went wrong! " + e);
+    }
 
     // Infinite loop
 
