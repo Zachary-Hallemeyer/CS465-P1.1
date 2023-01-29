@@ -1,4 +1,4 @@
-package message;
+package server;
 
 // TODO: Add summary with Authors
 public class NodeInfo {
