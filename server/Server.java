@@ -1,19 +1,23 @@
 package server;
 
-// import java.io.FileInputStream
-// import java.io.FileOutputStream
 import java.util.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import server.NodeInfo;
-import utils.NetworkUtilities;
+import java.io.IOException;
 
-// TODO: Add summary with Authors
+/**
+ * Class [Server] is a chat server that accepts chat clients and sends data
+ * from client to all other clients. This class makes use of ServerThread.
+ * A ServerThread thread is created for each client which accepts all data from
+ * its respective client
+ *
+ * @author Zachary M. Hallemeyer
+ */
 public class Server  {
 
-  static int clientNum = 0;
   static List<NodeInfo> users = new ArrayList<NodeInfo>();
 
   public static void main(String[] args) {
@@ -21,35 +25,40 @@ public class Server  {
     Socket clientConnection = null;
 
     // Prompt user for desired port
-      // Add checks to make sure port is a proper port number
-    // System.out.println("Enter desired port number: ");
-    // int port = scanner.nextInt();
-    int port = 8888;
+    System.out.println("Enter desired port number: ");
+    int port = scanner.nextInt();
 
     // Start Server and listen for traffic
     try(ServerSocket socket = new ServerSocket(port)) {
       System.out.println("Server listening on port: " + port);
-      // Socket connection = socket.accept();
 
-      // Accept Clients
+      // Accept Client Requests until server is closed
       while(true) {
         try {
+          // Accept client connection
           clientConnection = socket.accept();
+
+          // Create an output stream for client
+          ObjectOutputStream clientOutputStream = new ObjectOutputStream(
+                                          clientConnection.getOutputStream());
+
+          // Create a new NodeInfo to contain client info and add it to user list
+          NodeInfo newClient = new NodeInfo(clientOutputStream);
+          users.add(newClient);
           System.out.println("Client Added!");
 
-          // Create thread
-          new ServerThread(clientConnection).start();
+          // Create thread for handling client input (and sending client input to other clients)
+          new ServerThread(clientConnection, newClient).start();
 
-          // Add client to
         }
-        catch (Exception e) {
-          System.out.println("Client connection error: " + e);
+        catch (IOException error) {
+          System.out.println("I/O error: " + error);
         }
 
       }
 
-    } catch(Exception e) {
-      System.out.println("Something went wrong: " + e);
+    } catch(IOException error) {
+      System.out.println("I/O error: " + error);
     }
   }
 }

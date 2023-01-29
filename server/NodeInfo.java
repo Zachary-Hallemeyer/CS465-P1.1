@@ -1,14 +1,18 @@
 package server;
 
-// TODO: Add summary with Authors
-public class NodeInfo {
-  public String name;
-  public String ip; // May have to change to different data type
-  public int port;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 
-  public NodeInfo(String name, String ip, int port) {
-    this.name = name;
-    this.ip = ip;
-    this.port = port;
+/**
+ * Class [NodeInfo] defines an object to containing the necessary information
+ * to keep track as well as send data to clients from server
+ *
+ * @author Zachary M. Hallemeyer
+ */
+public class NodeInfo implements Serializable{
+  ObjectOutputStream outputStream;
+
+  public NodeInfo( ObjectOutputStream outputStream) {
+    this.outputStream = outputStream;
   }
 }
