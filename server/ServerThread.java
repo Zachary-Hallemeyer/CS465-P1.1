@@ -52,6 +52,7 @@ public class ServerThread extends Thread {
             clientInfo.outputStream.flush();
 
             // Send message to all other clients that this client has disconnected
+            sendMessageToAllClients(newMessage);
             sendMessageToAllClients(leaveMessage);
 
             // Free resources and return out of function
