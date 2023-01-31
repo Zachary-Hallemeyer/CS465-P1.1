@@ -5,8 +5,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import server.NodeInfo;
 import java.io.IOException;
+import server.NodeInfo;
+import utils.PropertyHandler;
 
 /**
  * Class [Server] is a chat server that accepts chat clients and sends data
@@ -23,10 +24,25 @@ public class Server  {
   public static void main(String[] args) {
     Scanner scanner = new Scanner(System.in);
     Socket clientConnection = null;
+    String configFileName = "";
+    int port = 0;
 
-    // Prompt user for desired port
-    System.out.println("Enter desired port number: ");
-    int port = scanner.nextInt();
+    // Get config file from user
+    System.out.println("Enter path to config file: ");
+    configFileName = scanner.nextLine();
+
+    // Get port from config file
+    try {
+      // Init PropertyHandler and use it to get port
+      PropertyHandler propertyHandler = new PropertyHandler(configFileName);
+      port = Integer.parseInt(propertyHandler.getProperty("PORT"));
+    }
+    catch (Exception e) {
+      // Terminate config file and print error
+      System.out.println("Config file is not valid: " + e);
+      System.out.println("Terminating program...");
+      System.exit(0);
+    }
 
     // Start Server and listen for traffic
     try(ServerSocket socket = new ServerSocket(port)) {

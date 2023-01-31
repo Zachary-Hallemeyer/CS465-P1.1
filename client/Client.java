@@ -2,12 +2,13 @@ package client;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.IOException;
 import java.util.Scanner;
 import java.net.ServerSocket;
 import java.net.Socket;
 import message.Message;
 import message.MessageTypes;
-import java.io.IOException;
+import utils.PropertyHandler;
 
 
 /**
@@ -26,30 +27,66 @@ public class Client {
     // Init. variables
     Scanner scanner = new Scanner(System.in);
     String[] stringArray;
-    String ip;
+    String ip = "";
     String userInput = "";
     String name = "";
-    int port;
+    String configFileName = "";
+    int port = 0;
+    boolean useConfig;
+
 
     // Prompt user for Name
     System.out.println("Enter your name");
     name = scanner.nextLine();
 
-    // Prompt user for command, ip, and port
-      // Repeat until join message is valid
-    do {
-      System.out.println("To enter a chat - Input the following command: "
-      + "JOIN <Host IP> <Host Port>");
-      userInput = scanner.nextLine();
+    // Print join options and get options
+    System.out.println("Enter 1 for use join information in config file"
+                       + "\nEnter 2 to input join information in command line");
+    if(scanner.nextLine().equals("2")) {
+      useConfig = false;
     }
-    while(isJoinMessageValid(userInput));
+    else {
+      useConfig = true;
+    }
 
-    // Convert string to useable array
-    stringArray = userInput.split(" ");
-    // Get ip
-    ip = stringArray[1];
-    // Get port
-    port = Integer.parseInt(stringArray[2]);
+
+    // Get join information from config
+    if(useConfig) {
+
+      try {
+        // Get path config
+        System.out.println("Enter path to config file: ");
+        configFileName = scanner.nextLine();
+
+        // Init PropertyHandler and get ip and port
+        PropertyHandler propertyHandler = new PropertyHandler(configFileName);
+        ip = propertyHandler.getProperty("IP");
+        port = Integer.parseInt(propertyHandler.getProperty("PORT"));
+      }
+      catch(Exception error) {
+        // Stop program
+        System.out.println("Config file is not valid: " + error);
+        stopProgram();
+      }
+    }
+    // Get join information from command line
+    else {
+      // Prompt user for command, ip, and port
+        // Repeat until join message is valid
+      do {
+        System.out.println("To enter a chat - Input the following command: "
+        + "JOIN <Host IP> <Host Port>");
+        userInput = scanner.nextLine();
+      }
+      while(isJoinMessageValid(userInput));
+
+      // Convert string to useable array
+      stringArray = userInput.split(" ");
+      // Get ip
+      ip = stringArray[1];
+      // Get port
+      port = Integer.parseInt(stringArray[2]);
+    }
 
     System.out.println("Requesting to connect to ip " + ip +
                        " on port " + port);
@@ -110,10 +147,12 @@ public class Client {
     }
   }
 
+  // Returns true if join is in correct form
+  // Returns false otherwise
   private static boolean isJoinMessageValid(String userInput) {
     String[] stringArray = userInput.split(" ");
 
-    if(stringArray.length < 3) {
+    if(stringArray.length != 3) {
       return false;
     }
     if(stringArray[0] != "JOIN") {
